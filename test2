@@ -59,3 +59,35 @@ user_value = "Desired Value"  # Replace with the value to select
 
 select_dropdown_by_automation_id(app_path, window_title, automation_id, user_value)
 
+from pywinauto import Application
+
+def read_dropdown_values(window_title, automation_id):
+    """
+    Attach to a running application and read all values from a dropdown using AutomationId.
+
+    :param window_title: Title of the application's main window.
+    :param automation_id: AutomationId of the dropdown control.
+    :return: List of dropdown values.
+    """
+    try:
+        # Attach to the running application by window title
+        app = Application(backend="uia").connect(title=window_title)
+        app_window = app.window(title=window_title)
+        
+        # Locate the dropdown control by its AutomationId
+        dropdown = app_window.child_window(auto_id=automation_id, control_type="ComboBox")
+        
+        # Read all values from the dropdown
+        values = dropdown.texts()
+        print("Dropdown values:", values)
+        return values
+    except Exception as e:
+        print(f"Error reading dropdown values: {e}")
+        return []
+
+# Example usage
+window_title = "Investments"  # Replace with your application's window title
+automation_id = "DropdownAutomationId"  # Replace with the AutomationId of the dropdown
+
+dropdown_values = read_dropdown_values(window_title, automation_id)
+print("Available values:", dropdown_values)

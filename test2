@@ -1,1 +1,19 @@
-sasad
+
+import win32gui
+import win32con
+
+def find_window_and_control(window_title, control_id):
+    hwnd = win32gui.FindWindow(None, window_title)  # Find the window by title
+    if hwnd:
+        ctrl = win32gui.FindWindowEx(hwnd, 0, None, None)  # Find control in the window
+        return ctrl
+    return None
+
+def select_dropdown_item(window_title, control_id, user_value):
+    hwnd = find_window_and_control(window_title, control_id)
+    if hwnd:
+        win32gui.SendMessage(hwnd, win32con.CB_SETCURSEL, user_value, 0)
+        win32gui.SendMessage(hwnd, win32con.WM_COMMAND, win32con.CBN_SELCHANGE, hwnd)
+        print(f"Selected value: {user_value}")
+    else:
+        print("Control not found.")

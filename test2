@@ -17,3 +17,45 @@ def select_dropdown_item(window_title, control_id, user_value):
         print(f"Selected value: {user_value}")
     else:
         print("Control not found.")
+
+
+
+from pywinauto import Application
+
+def select_dropdown_by_automation_id(app_path, window_title, automation_id, user_value):
+    """
+    Selects a value in a dropdown using AutomationId.
+    
+    :param app_path: Path to the application's executable.
+    :param window_title: Title of the application's main window.
+    :param automation_id: AutomationId of the dropdown control.
+    :param user_value: The value to select from the dropdown.
+    """
+    # Launch the application or connect to it
+    app = Application(backend="uia").start(app_path)  # Replace with app_path if app needs to be started
+    app_window = app.window(title=window_title)
+    
+    # Ensure the window is active
+    app_window.set_focus()
+
+    # Locate the dropdown control by its AutomationId
+    dropdown = app_window.child_window(auto_id=automation_id, control_type="ComboBox")
+    
+    # Expand the dropdown
+    dropdown.expand()
+    
+    # Select the desired value
+    try:
+        dropdown.select(user_value)
+        print(f"Value '{user_value}' selected successfully.")
+    except Exception as e:
+        print(f"Error selecting value '{user_value}': {e}")
+
+# Example usage
+app_path = "C:\\Path\\To\\Application.exe"  # Replace with the actual application path
+window_title = "Investments"  # Replace with your application's window title
+automation_id = "DropdownAutomationId"  # Replace with the AutomationId of the dropdown
+user_value = "Desired Value"  # Replace with the value to select
+
+select_dropdown_by_automation_id(app_path, window_title, automation_id, user_value)
+

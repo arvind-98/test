@@ -1,4 +1,59 @@
 
+from pywinauto import Application
+
+def select_dropdown_by_class(window_title, class_name, index, user_value):
+    """
+    Select a value from a dropdown using class name and index.
+
+    :param window_title: Title of the application's main window.
+    :param class_name: Class name of the dropdown control.
+    :param index: Index of the dropdown control (if multiple instances).
+    :param user_value: The value to select from the dropdown.
+    """
+    try:
+        # Attach to the running application
+        app = Application(backend="uia").connect(title=window_title)
+        app_window = app.window(title=window_title)
+        
+        # Locate the dropdown control by class name and instance
+        dropdown = app_window.child_window(class_name=class_name, control_type="ComboBox", found_index=index)
+        
+        # Expand the dropdown and select the value
+        dropdown.expand()
+        dropdown.select(user_value)
+        print(f"Value '{user_value}' selected successfully.")
+    except Exception as e:
+        print(f"Error interacting with the dropdown: {e}")
+
+# Example usage
+window_title = "Investments"  # Replace with your application's window title
+class_name = "ThunderRT6ComboBox"
+index = 1  # Replace with the correct index of the dropdown if multiple exist
+user_value = "Desired Value"  # Replace with the value to select
+
+select_dropdown_by_class(window_title, class_name, index, user_value)
+
+from pywinauto import Application
+
+def print_all_controls(window_title):
+    """
+    Print all controls in the application window for debugging.
+    
+    :param window_title: Title of the application's main window.
+    """
+    try:
+        app = Application(backend="uia").connect(title=window_title)
+        app_window = app.window(title=window_title)
+        app_window.print_control_identifiers()
+    except Exception as e:
+        print(f"Error accessing controls: {e}")
+
+# Example usage
+window_title = "Investments"  # Replace with your application's window title
+
+print_all_controls(window_title)
+
+
 import win32gui
 import win32con
 

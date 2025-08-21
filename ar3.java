@@ -1,4 +1,63 @@
 
+
+
+
+def extract_job_data_from_sheet(df, sheet_name):
+    """
+    Extract job data from a single sheet with better section detection
+    Handles both structured (FILES IN/OUT headers) and mapping style sheets.
+    """
+    job_data = {
+        'job_id': None,
+        'files_in': [],
+        'files_out': []
+    }
+
+    print(f"\nProcessing sheet: {sheet_name}")
+
+    # -------- Case 1: Structured format (FILES IN / FILES OUT sections) --------
+    files_in = find_files_in_section(df, "FILES IN")
+    files_out = find_files_in_section(df, "FILES OUT")
+
+    if files_in or files_out:
+        # Try to detect job id from first 20 rows
+        for idx in range(min(20, len(df))):
+            for col in df.columns:
+                if pd.notna(df.iloc[idx, col]):
+                    val = str(df.iloc[idx, col]).strip()
+                    if re.match(r'^[A-Z]{3,}[0-9]{3,4}$', val):  # e.g., ISCA0100
+                        job_data['job_id'] = val
+                        break
+            if job_data['job_id']:
+                break
+        job_data['files_in'] = files_in
+        job_data['files_out'] = files_out
+        return job_data
+
+    # -------- Case 2: Mapping style sheet (col A=Job, col B=IN, col C=OUT) --------
+    print("Structured headers not found → assuming mapping style sheet")
+
+    for idx, row in df.iterrows():
+        job_id = str(row[0]).strip() if pd.notna(row[0]) else None
+        if job_id and re.match(r'^[A-Z]{3,}[0-9]{3,4}$', job_id):
+            job_data['job_id'] = job_id
+
+        # Files IN in column B
+        if len(row) > 1 and pd.notna(row[1]) and is_valid_filename(str(row[1]).strip()):
+            job_data['files_in'].append(str(row[1]).strip())
+
+        # Files OUT in column C
+        if len(row) > 2 and pd.notna(row[2]) and is_valid_filename(str(row[2]).strip()):
+            job_data['files_out'].append(str(row[2]).strip())
+
+    # If job id not found, default to sheet name
+    if not job_data['job_id']:
+        job_data['job_id'] = sheet_name.upper()
+
+    return job_data
+
+
+
 import pandas as pd
 import openpyxl
 from openpyxl import Workbook
